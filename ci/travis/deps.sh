@@ -1,16 +1,18 @@
 #!/bin/bash
 
-set -e
+set -ex
 
 . ci/travis/lib.sh
 
 setup_deps_dir(){
-    export DEPS_DIR="./deps"
-    mkdir -p ${DEPS_DIR}
+    
+    sudo mkdir -p ${BUILD_DIR}/${DEPS_DIR}
 }
 
 deps_default() {
-    setup_deps_dir
+    BUILD_DIR="./build"
+    setup_deps_dir 
+    pushd ${BUILD_DIR}
     get_deps_source_code ${DEPS_DIR}
     build_and_install_glog "${DEPS_DIR}/glog" "${DEPS_DIR}/installed/glog"
     build_and_install_protobuf "${DEPS_DIR}/protobuf" "${DEPS_DIR}/installed/protobuf"
@@ -21,6 +23,7 @@ deps_default() {
     if [[ ${CMAKE_OPTIONS} == *"WITH_OPEN3D=on"* ]]; then
         build_and_install_open3d "${DEPS_DIR}/Open3D" "${DEPS_DIR}/installed/Open3D"
     fi
+    popd
 }
 
 deps_cppcheck() {

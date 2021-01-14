@@ -141,9 +141,10 @@ build_and_install_glog() {
     EXTRA_CMAKE_OPTIONS=$3
     BUILD_DIR=${REPO_DIR}/build_0_3_5
 
+    echo "smth"
     sudo mkdir -p ${BUILD_DIR}
     pushd ${BUILD_DIR}
-    cmake .. -DWITH_GFLAGS=off -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} ${EXTRA_CMAKE_OPTIONS}
+    sudo cmake .. -DWITH_GFLAGS=off -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} ${EXTRA_CMAKE_OPTIONS}
     sudo make -j${NUM_JOBS}
     sudo make install
     popd
@@ -156,12 +157,12 @@ build_and_install_protobuf() {
     REPO_DIR=$1
     INSTALL_DIR=$2
     EXTRA_CMAKE_OPTIONS=$3
-    BUILD_DIR=${REPO_DIR}/build_3_9_0
+    BUILD_DIR=${REPDO_IR}/build_3_9_0
 
-    mkdir -p ${BUILD_DIR}
+    sudo mkdir -p ${BUILD_DIR}
     pushd ${BUILD_DIR}
-    cmake ../cmake/ -Dprotobuf_BUILD_TESTS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} ${EXTRA_CMAKE_OPTIONS}
-    make -j${NUM_JOBS}
+    sudo cmake ../cmake/ -Dprotobuf_BUILD_TESTS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} ${EXTRA_CMAKE_OPTIONS}
+    sudo make -j${NUM_JOBS}
     sudo make install
     popd
 }
@@ -175,10 +176,10 @@ build_and_install_websockets() {
     EXTRA_CMAKE_OPTIONS=$3
     BUILD_DIR=${REPO_DIR}/build_3_1_0
 
-    mkdir -p ${BUILD_DIR}
+    sudo mkdir -p ${BUILD_DIR}
     pushd ${BUILD_DIR}
-    cmake .. -DLWS_STATIC_PIC=ON -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} ${EXTRA_CMAKE_OPTIONS}
-    make -j${NUM_JOBS}
+    sudo cmake .. -DLWS_STATIC_PIC=ON -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} ${EXTRA_CMAKE_OPTIONS}
+    sudo make -j${NUM_JOBS}
     sudo make install
     popd
 }
@@ -199,10 +200,10 @@ build_and_install_opencv() {
         libavformat-dev libswscale-dev python-dev python-numpy libtbb2 libtbb-dev \
         libjpeg-dev libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev binutils
 
-    mkdir -p ${BUILD_DIR}
+    sudo mkdir -p ${BUILD_DIR}
     pushd ${BUILD_DIR}
-    cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=${INSTALL_DIR} -D WITH_TBB=OFF -D WITH_IPP=OFF -D BUILD_NEW_PYTHON_SUPPORT=OFF -D WITH_V4L=OFF -D INSTALL_C_EXAMPLES=OFF -D INSTALL_PYTHON_EXAMPLES=OFF -D BUILD_EXAMPLES=OFF -D WITH_QT=OFF -D WITH_OPENGL=OFF -D WITH_OPENCL=OFF -DCPU_DISPATCH= ..
-    make -j${NUM_JOBS}
+    sudo cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=${INSTALL_DIR} -D WITH_TBB=OFF -D WITH_IPP=OFF -D BUILD_NEW_PYTHON_SUPPORT=OFF -D WITH_V4L=OFF -D INSTALL_C_EXAMPLES=OFF -D INSTALL_PYTHON_EXAMPLES=OFF -D BUILD_EXAMPLES=OFF -D WITH_QT=OFF -D WITH_OPENGL=OFF -D WITH_OPENCL=OFF -DCPU_DISPATCH= ..
+    sudo ake -j${NUM_JOBS}
     sudo make install
 
 	sudo sh -c 'echo "${INSTALL_DIR}/lib" > /etc/ld.so.conf.d/opencv.conf'
@@ -223,10 +224,10 @@ build_and_install_open3d() {
     chmod +x ${REPO_DIR}/util/scripts/install-deps-ubuntu.sh
     bash ${REPO_DIR}/util/scripts/install-deps-ubuntu.sh "assume-yes"
 
-    mkdir -p ${BUILD_DIR}
+    sudomkdir -p ${BUILD_DIR}
     pushd ${BUILD_DIR}
-    cmake -D CMAKE_INSTALL_PREFIX=${INSTALL_DIR} -DBUILD_PYBIND11=off -DBUILD_PYTHON_MODULE=off -DGLIBCXX_USE_CXX11_ABI=on ..
-    make -j${NUM_JOBS}
+    sudo cmake -D CMAKE_INSTALL_PREFIX=${INSTALL_DIR} -DBUILD_PYBIND11=off -DBUILD_PYTHON_MODULE=off -DGLIBCXX_USE_CXX11_ABI=on ..
+    sudo make -j${NUM_JOBS}
     sudo make install
 }
 
@@ -261,27 +262,36 @@ get_deps_source_code() {
     if [[ "${OPENCV}" == "" ]]; then
         export OPENCV="3.4.1"
     fi
-
+    echo "a"
     [ -d "glog" ] || {
-       git clone --branch v0.3.5 --depth 1 https://github.com/google/glog
+       sudo git clone --branch v0.3.5 --depth 1 https://github.com/google/glog
     }
+    echo "b"
+
     [ -d "protobuf" ] || {
-       git clone --branch v3.9.0 --depth 1 https://github.com/protocolbuffers/protobuf
+       sudo git clone --branch v3.9.0 --depth 1 https://github.com/protocolbuffers/protobuf
     }
+    echo "c"
+
     [ -d "libwebsockets" ] || {
-       git clone --branch v3.1-stable --depth 1 https://github.com/warmcat/libwebsockets
+       sudo git clone --branch v3.1-stable --depth 1 https://github.com/warmcat/libwebsockets
     }
+    echo "d"
+
     if [[ ${CMAKE_OPTIONS} == *"WITH_OPENCV=on"* ]]; then
         [ -d "opencv-${OPENCV}" ] || {
             curl -sL https://github.com/Itseez/opencv/archive/${OPENCV}.zip > opencv.zip
 	        unzip -q opencv.zip
         }
     fi
+    echo "e"
+
     if [[ ${CMAKE_OPTIONS} == *"WITH_OPEN3D=on"* ]]; then
         [ -d "Open3D" ] || {
             git clone --recursive --branch v0.9.0 --depth 1 https://github.com/intel-isl/Open3D.git
         }
     fi
+    echo "f"
 
     popd
 }

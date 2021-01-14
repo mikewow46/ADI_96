@@ -1,12 +1,14 @@
 #!/bin/bash
 
-set -e
+set -ex
 
 . ci/travis/lib.sh
 
 build_default() {
     pushd "${TRAVIS_BUILD_DIR}"
+    sudo mkdir -p build
     cd build
+    sudo cmake -DCMAKE_PREFIX_PATH="${DEPS_DIR}/installed/glog;${DEPS_DIR}/installed/protobuf;${DEPS_DIR}/installed/websockets;${DEPS_DIR}/installed/Open3D;" ..
     sudo make -j${NUM_JOBS}
     popd
 }
