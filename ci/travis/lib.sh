@@ -141,10 +141,10 @@ build_and_install_glog() {
     EXTRA_CMAKE_OPTIONS=$3
     BUILD_DIR=${REPO_DIR}/build_0_3_5
 
-    mkdir -p ${BUILD_DIR}
+    sudo mkdir -p ${BUILD_DIR}
     pushd ${BUILD_DIR}
     cmake .. -DWITH_GFLAGS=off -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} ${EXTRA_CMAKE_OPTIONS}
-    make -j${NUM_JOBS}
+    sudo make -j${NUM_JOBS}
     sudo make install
     popd
 }
