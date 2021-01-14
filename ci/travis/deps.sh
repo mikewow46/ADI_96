@@ -4,7 +4,13 @@ set -e
 
 . ci/travis/lib.sh
 
+setup_deps_dir(){
+    export DEPS_DIR="./deps"
+    mkdir -p ${DEPS_DIR}
+}
+
 deps_default() {
+    setup_deps_dir
     get_deps_source_code ${DEPS_DIR}
     build_and_install_glog "${DEPS_DIR}/glog" "${DEPS_DIR}/installed/glog"
     build_and_install_protobuf "${DEPS_DIR}/protobuf" "${DEPS_DIR}/installed/protobuf"
