@@ -56,7 +56,7 @@
 #define CVUI_IMPLEMENTATION
 #include "cvui.h"
 
-#define WINDOW_NAME "ADITOF TEST"
+#define WINDOW_NAME "ADITOF-TEST"
 
 using namespace aditof;
 
@@ -72,6 +72,8 @@ int main(int argc, char *argv[]) {
     bool captureStatus = false;
     bool frameReceived = false;
     bool testPassed = true;
+
+    bool fullScreen = false;
 
     cvui::init(WINDOW_NAME);
     cv::Mat frame = cv::Mat(cv::Size(800, 480), CV_8UC3);
@@ -95,6 +97,10 @@ int main(int argc, char *argv[]) {
 
         if (cvui::button(frame, 730, 30, 50, 50, "X")) {
             break;
+        }
+        
+        if (cvui::button(frame, 710, 100, 70, 200, "PowerOff")) {
+            system("shutdown -P now");
         }
 
         if (cvui::button(frame, 30, 30, 200, 75, "Start")) {
@@ -189,6 +195,13 @@ int main(int argc, char *argv[]) {
         cvui::update();
         cvui::imshow(WINDOW_NAME, frame);
 
+	cv::waitKey(20);
+	
+	if (!fullScreen) {
+		system("wmctrl -r 'ADITOF-TEST' -b toggle,fullscreen");	
+		fullScreen = true;
+		}
+
         if (cv::waitKey(20) == 27) {
             break;
         }
@@ -269,7 +282,7 @@ int _DisplayIR(cv::Mat *irMat, int *measuredDistance, int targetDistance, float 
         uint16_t *data;
         frame.getData(aditof::FrameDataType::DEPTH, &data);
 
-        *measuredDistance += static_cast<int>(data[240 * 640 + 320]);
+        *measuredDistance += static_cast<int>(data[frameHeight * frameWidth / 2 + frameWidth / 2]);
     }
 
     	/* Convert frame to IR mat */
@@ -317,7 +330,7 @@ int _DisplayIR(cv::Mat *irMat, int *measuredDistance, int targetDistance, float 
 	
 	std::ofstream MyFile("MeasuredResults.txt");
 	MyFile << "Targed set at distance: " << targetDistance << std::endl;
-	MyFile << "Camera measured: " << measuredDistance << std::endl;
+	MyFile << "Camera measured: " << *measuredDistance << std::endl;
 	MyFile << "Precision: " << *precision;
 	MyFile.close();
 	
@@ -343,8 +356,12 @@ void saveData(cv::Mat irMat, cv::Mat depthMat, std::string eepromID){
 void moveData(std::string eepromID){
 
 	std::string filename = "savedResults/";	
-	filename = filename + eepromID;
 	int status;
+
+	status = mkdir(filename.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+
+	filename = filename + eepromID;
+	
 	
 	status = mkdir(filename.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
